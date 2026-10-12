@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Stock-take{% endblock %}
+{% block content %}
+<h1 class="h3">Stock-take (physical count)</h1>
+<p class="text-muted">Type the quantity you counted. Leave a box empty to skip a product. Differences are posted as adjustments with reason "Stock-take correction".</p>
+<form method="post">{% csrf_token %}
+<div class="card"><div class="table-responsive"><table class="table table-sm mb-0">
+  <thead class="table-light"><tr><th>SKU</th><th>Product</th><th>Category</th><th>System stock</th><th style="width:140px">Counted</th></tr></thead><tbody>
+  {% for p in products %}<tr><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.category|default:"" }}</td><td>{{ p.stock }}</td>
+    <td><input class="form-control form-control-sm" name="count_{{ p.pk }}" inputmode="numeric" pattern="[0-9]*"></td></tr>{% endfor %}
+  </tbody></table></div></div>
+<button class="btn btn-primary mt-3">Post differences</button> <a class="btn btn-outline-secondary mt-3" href="{% url 'inventory:movements' %}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}New sale{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">New sale</h1>
+<form method="post">{% csrf_token %}
+  <div class="card mb-3"><div class="card-body"><div class="row">
+    {% for field in header %}<div class="col-md-3 mb-2"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+      {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>{% endfor %}</div></div></div>
+  {{ formset.management_form }}{{ formset.non_form_errors }}
+  <div class="card mb-3"><div class="card-header d-flex justify-content-between">Products
+    <button type="button" id="add-row" class="btn btn-sm btn-outline-primary">+ More rows</button></div>
+  <table class="table table-sm mb-0" id="lines"><thead><tr><th>Product</th><th style="width:130px">Quantity</th><th style="width:170px">Unit price</th></tr></thead><tbody>
+  {% for f in formset %}<tr><td>{{ f.product }}{% for e in f.product.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+    <td>{{ f.quantity }}{% for e in f.quantity.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+    <td>{{ f.unit_price }}{% for e in f.unit_price.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td></tr>{% endfor %}</tbody></table></div>
+  <button class="btn btn-success">Save sale</button> <a class="btn btn-outline-secondary" href="{% url 'sales:list' %}">Cancel</a>
+  <span class="text-muted small ms-2">Tax and totals are calculated when you save. Stock is checked and reduced automatically.</span>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('add-row').addEventListener('click', function () {
+  const total = document.getElementById('id_form-TOTAL_FORMS');
+  const n = parseInt(total.value, 10);
+  const body = document.querySelector('#lines tbody');
+  const row = body.rows[0].cloneNode(true);
+  row.innerHTML = row.innerHTML.replace(/form-\d+-/g, 'form-' + n + '-');
+  row.querySelectorAll('input').forEach(i => { i.value = ''; });
+  row.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
+  row.querySelectorAll('.text-danger').forEach(e => e.remove());
+  body.appendChild(row);
+  total.value = n + 1;
+});
+</script>
+{% endblock %}

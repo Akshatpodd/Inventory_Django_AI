@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">{{ title }}</h1>
+  <a class="btn btn-outline-secondary btn-sm no-print" href="?{{ csv_query }}{% if csv_query %}&{% endif %}format=csv">Download CSV</a></div>
+{% if description %}<p class="text-muted">{{ description }}</p>{% endif %}
+{% if form %}<form method="get" class="card card-body mb-3 no-print"><div class="row g-2 align-items-end">
+  {% for field in form %}<div class="col-md-3">{{ field.label_tag }}{{ field }}</div>{% endfor %}
+  <div class="col-md-2"><button class="btn btn-secondary w-100">Apply</button></div></div></form>{% endif %}
+<div class="card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
+  <thead class="table-light"><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr></thead><tbody>
+  {% for row in rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+  {% empty %}<tr><td colspan="{{ headers|length }}" class="text-center text-muted py-4">No data.</td></tr>{% endfor %}</tbody></table></div></div>
+{% if truncated %}<p class="text-muted small mt-2">Showing the first 500 of {{ count }} rows. Download the CSV for everything.</p>{% endif %}
+{% endblock %}

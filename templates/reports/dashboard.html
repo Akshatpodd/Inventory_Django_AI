@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Dashboard</h1>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="card card-kpi"><div class="card-body">
+    <div class="small text-muted">Stock value (at cost)</div>
+    <div class="h4 mb-0">Rs {{ stock_value|floatformat:0 }}</div>
+    <div class="small text-muted">{{ product_count }} active products</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card card-kpi"><div class="card-body">
+    <div class="small text-muted">Sales today</div>
+    <div class="h4 mb-0">Rs {{ sales_today|floatformat:0 }}</div>
+    <div class="small text-muted">7 days: Rs {{ sales_7|floatformat:0 }} &middot; 30 days: Rs {{ sales_30|floatformat:0 }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none text-reset" href="{% url 'catalog:product_list' %}"><div class="card card-kpi"><div class="card-body">
+    <div class="small text-muted">At or below reorder level</div>
+    <div class="h4 mb-0">{{ low_count }}</div></div></div></a></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none text-reset" href="{% url 'purchasing:list' %}"><div class="card card-kpi"><div class="card-body">
+    <div class="small text-muted">Open purchase orders</div>
+    <div class="h4 mb-0">{{ open_pos }}</div></div></div></a></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-8"><div class="card"><div class="card-header">Sales, last 30 days (Rs)</div><div class="card-body"><canvas id="salesChart" height="120"></canvas></div></div></div>
+  <div class="col-lg-4">
+    <div class="card"><div class="card-header">Top products (30 days)</div><ul class="list-group list-group-flush">
+      {% for t in top_products %}<li class="list-group-item d-flex justify-content-between">{{ t.product__name }}<span>{{ t.units }}</span></li>{% empty %}<li class="list-group-item text-muted">No sales yet.</li>{% endfor %}</ul></div>
+  </div>
+</div>
+{% if low_stock %}<div class="card mt-3"><div class="card-header">Low stock</div><table class="table table-sm mb-0"><thead><tr><th>Product</th><th>Stock</th><th>Reorder at</th></tr></thead><tbody>
+  {% for p in low_stock %}<tr><td><a href="{% url 'catalog:product_detail' p.pk %}">{{ p.name }}</a></td><td class="text-danger fw-semibold">{{ p.stock }}</td><td>{{ p.reorder_point }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+{{ chart_labels|json_script:"chart-labels" }}{{ chart_values|json_script:"chart-values" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('salesChart'), {type: 'bar', data: {labels: JSON.parse(document.getElementById('chart-labels').textContent),
+  datasets: [{label: 'Sales', data: JSON.parse(document.getElementById('chart-values').textContent), backgroundColor: '#2c5282'}]},
+  options: {plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true}}}});
+</script>
+{% endblock %}

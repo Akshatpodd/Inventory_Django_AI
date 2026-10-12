@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load ims %}
+{% block title %}{{ object.number }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h1 class="h3 mb-0">{{ object.number }} <span class="badge bg-{{ object.status|badge_class }}">{{ object.get_status_display }}</span></h1>
+  <div class="no-print d-flex gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'purchasing:print' object.pk %}" target="_blank">Print</a>
+    {% if can_write %}
+      {% if object.status == 'DRAFT' %}<a class="btn btn-outline-primary btn-sm" href="{% url 'purchasing:edit' object.pk %}">Edit</a>
+        <form method="post" action="{% url 'purchasing:action' object.pk 'approve' %}">{% csrf_token %}<button class="btn btn-success btn-sm">Approve</button></form>{% endif %}
+      {% if object.status == 'APPROVED' %}<form method="post" action="{% url 'purchasing:action' object.pk 'send' %}">{% csrf_token %}<button class="btn btn-primary btn-sm">Mark as sent</button></form>{% endif %}
+      {% if object.status == 'APPROVED' or object.status == 'SENT' or object.status == 'PARTIAL' %}<a class="btn btn-warning btn-sm" href="{% url 'purchasing:receive' object.pk %}">Receive goods</a>{% endif %}
+      {% if object.status == 'SENT' or object.status == 'PARTIAL' %}<form method="post" action="{% url 'purchasing:action' object.pk 'close' %}" onsubmit="return confirm('Close although some items did not arrive?')">{% csrf_token %}<button class="btn btn-outline-dark btn-sm">Close short</button></form>{% endif %}
+      {% if object.status == 'DRAFT' or object.status == 'APPROVED' or object.status == 'SENT' %}<form method="post" action="{% url 'purchasing:action' object.pk 'cancel' %}" onsubmit="return confirm('Cancel this order?')">{% csrf_token %}<button class="btn btn-outline-danger btn-sm">Cancel order</button></form>{% endif %}
+    {% endif %}
+  </div>
+</div>
+<div class="card mb-3"><div class="card-body row">
+  <div class="col-md-3"><div class="text-muted small">Supplier</div>{{ object.supplier }}</div>
+  <div class="col-md-2"><div class="text-muted small">Order date</div>{{ object.order_date|date:"d/m/Y" }}</div>
+  <div class="col-md-2"><div class="text-muted small">Sent</div>{{ object.sent_date|date:"d/m/Y"|default:"-" }}</div>
+  <div class="col-md-2"><div class="text-muted small">Expected</div>{{ object.expected_date|date:"d/m/Y"|default:"-" }}</div>
+  <div class="col-md-3"><div class="text-muted small">First received / lead time</div>{{ object.first_received_date|date:"d/m/Y"|default:"-" }}{% if object.lead_time_days is not None %} ({{ object.lead_time_days }} days){% endif %}</div>
+  {% if object.note %}<div class="col-12 mt-2 text-muted">{{ object.note }}</div>{% endif %}</div></div>
+<div class="card"><table class="table table-sm mb-0">
+  <thead class="table-light"><tr><th>Product</th><th>Ordered</th><th>Received</th><th>Rejected</th><th>Waiting</th><th class="text-end">Unit cost</th><th class="text-end">Total</th></tr></thead><tbody>
+  {% for l in lines %}<tr><td>{{ l.product.name }}</td><td>{{ l.quantity }}</td><td>{{ l.received_qty }}</td><td>{{ l.rejected_qty }}</td><td>{{ l.outstanding }}</td>
+    <td class="text-end">Rs {{ l.unit_cost }}</td><td class="text-end">Rs {{ l.line_total }}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><th colspan="6" class="text-end">Total</th><th class="text-end">Rs {{ object.total }}</th></tr></tfoot></table></div>
+{% endblock %}

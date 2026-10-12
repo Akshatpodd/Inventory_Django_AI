@@ -1,0 +1,49 @@
+:root {
+  --ink: #1f2933;
+  --muted: #6b7280;
+  --line: #dfe3e8;
+  --paper: #f7f7f5;
+  --accent: #2c5282;
+  --bs-primary: #2c5282;
+  --bs-primary-rgb: 44, 82, 130;
+  --bs-link-color: #2c5282;
+  --bs-link-hover-color: #1e3a5f;
+  --bs-body-color: var(--ink);
+  --bs-border-color: var(--line);
+}
+
+body { background: var(--paper); color: var(--ink); font-size: .94rem; }
+h1, .h3 { font-weight: 600; letter-spacing: -.01em; }
+
+.btn-primary { --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-hover-bg: #1e3a5f;
+  --bs-btn-hover-border-color: #1e3a5f; --bs-btn-active-bg: #1e3a5f; --bs-btn-active-border-color: #1e3a5f; }
+.btn-outline-primary { --bs-btn-color: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-hover-bg: var(--accent);
+  --bs-btn-hover-border-color: var(--accent); --bs-btn-active-bg: var(--accent); --bs-btn-active-border-color: var(--accent); }
+.bg-primary { background-color: var(--accent) !important; }
+
+/* sidebar */
+.sidebar { width: 220px; min-height: 100vh; flex-shrink: 0; background: #fff; border-right: 1px solid var(--line); }
+.sidebar .brand { font-weight: 600; font-size: 1.05rem; padding: .25rem .5rem 1rem; }
+.sidebar .nav-link { color: var(--ink); border-radius: 4px; padding: .4rem .5rem; }
+.sidebar .nav-link:hover { background: #eef0f3; }
+.sidebar .nav-link.active { background: #e4e8ee; font-weight: 600; color: var(--ink); }
+.sidebar .who { font-size: .85rem; color: var(--muted); }
+.topbar { background: #fff; border-bottom: 1px solid var(--line); }
+
+/* cards and tables */
+.card { border: 1px solid var(--line); border-radius: 6px; box-shadow: none; background: #fff; }
+.card-header { background: #fff; border-bottom: 1px solid var(--line); font-weight: 600; }
+.card-kpi .card-body { padding: .8rem 1rem; }
+.table { --bs-table-bg: transparent; }
+.table thead th { font-weight: 600; color: var(--muted); font-size: .8rem; text-transform: uppercase;
+  letter-spacing: .03em; background: #fafafa; }
+.table-sm td, .table-sm th { vertical-align: middle; }
+.badge { font-weight: 500; }
+
+.reason-text { font-size: .85rem; color: #555; max-width: 520px; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  main { padding: 0 !important; }
+}

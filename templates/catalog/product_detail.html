@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load ims %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">{{ product.name }} <small class="text-muted">{{ product.sku }}</small></h1>
+  <div class="no-print">
+    {% if can_write %}<a class="btn btn-primary btn-sm" href="{% url 'catalog:product_edit' product.pk %}">Edit</a>{% endif %}
+  </div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="card card-kpi"><div class="card-body"><div class="text-muted small">Stock on hand</div>
+    <div class="h3 mb-0">{{ stock }} <small class="fs-6">{{ product.unit }}</small></div>
+    {% if stock <= product.reorder_point %}<span class="badge bg-danger">Reorder</span>{% endif %}</div></div></div>
+  <div class="col-md-4"><div class="card card-kpi"><div class="card-body"><div class="text-muted small">Price / Cost</div>
+    <div class="h5 mb-0">Rs {{ product.selling_price }} / Rs {{ product.cost_price }}</div>
+    <div class="small text-muted">Margin {{ product.margin_percent|default_if_none:"-" }}%</div></div></div></div>
+  <div class="col-md-4"><div class="card card-kpi"><div class="card-body"><div class="text-muted small">Reorder point</div>
+    <div class="h5 mb-0">{{ product.reorder_point }}</div>
+    <div class="small text-muted">Min order {{ product.min_order_qty }}, pack of {{ product.pack_size }}</div></div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card"><div class="card-header d-flex justify-content-between">Suppliers
+    {% if can_write %}<a class="btn btn-sm btn-outline-primary no-print" href="{% url 'catalog:supplier_add' product.pk %}">Add</a>{% endif %}</div>
+    <table class="table table-sm mb-0"><thead><tr><th>Supplier</th><th>Unit cost</th><th>Lead time</th><th></th></tr></thead><tbody>
+    {% for link in supplier_links %}<tr><td>{{ link.supplier.name }}{% if link.supplier_id == product.preferred_supplier_id %} <span class="badge bg-success">preferred</span>{% endif %}</td>
+      <td>Rs {{ link.unit_cost }}</td><td>{{ link.lead_time_days }} days</td>
+      <td>{% if can_write %}<form method="post" action="{% url 'catalog:supplier_remove' link.pk %}">{% csrf_token %}<button class="btn btn-sm btn-link text-danger">Remove</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="text-muted text-center">No supplier linked.</td></tr>{% endfor %}</tbody></table></div></div>
+  <div class="col-lg-6"><div class="card"><div class="card-header">Latest stock movements</div>
+    <table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Type</th><th>Change</th><th>Ref</th></tr></thead><tbody>
+    {% for m in movements %}<tr><td>{{ m.created_at|date:"d/m/Y H:i" }}</td><td>{{ m.get_movement_type_display }}</td>
+      <td class="{% if m.delta < 0 %}text-danger{% else %}text-success{% endif %}">{{ m.delta }}</td><td>{{ m.reference }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="text-muted text-center">No movements.</td></tr>{% endfor %}</tbody></table></div></div>
+</div>
+{% endblock %}

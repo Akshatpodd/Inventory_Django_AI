@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16
+    environment: {POSTGRES_DB: ims, POSTGRES_USER: ims, POSTGRES_PASSWORD: ims-password}
+    volumes: [pgdata:/var/lib/postgresql/data]
+  web:
+    build: .
+    environment:
+      DB_ENGINE: postgres
+      DB_NAME: ims
+      DB_USER: ims
+      DB_PASSWORD: ims-password
+      DB_HOST: db
+    depends_on: [db]
+    ports: ["8000:8000"]
+volumes:
+  pgdata:
